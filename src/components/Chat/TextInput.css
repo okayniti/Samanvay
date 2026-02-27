@@ -1,0 +1,98 @@
+.text-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.text-input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-sm);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm);
+    border: var(--glass-border);
+    transition: border-color var(--transition-fast);
+}
+
+.text-input-wrapper:focus-within {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 2px var(--accent-cyan-dim);
+}
+
+.text-input-field {
+    flex: 1;
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    background: transparent;
+    resize: none;
+    min-height: 44px;
+    max-height: 120px;
+    line-height: 1.5;
+}
+
+.text-input-field::placeholder {
+    color: var(--text-muted);
+}
+
+.send-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: var(--gradient-main);
+    color: var(--text-inverse);
+    font-size: var(--text-lg);
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.send-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px var(--accent-cyan-glow);
+}
+
+.send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.voice-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: var(--bg-glass);
+    color: var(--text-secondary);
+    font-size: var(--text-lg);
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+    border: var(--glass-border);
+}
+
+.voice-btn:hover {
+    color: var(--accent-violet);
+    border-color: var(--accent-violet);
+}
+
+.voice-btn.listening {
+    color: var(--accent-rose);
+    border-color: var(--accent-rose);
+    background: var(--accent-rose-dim);
+    animation: pulseGlow 1.5s infinite;
+    --accent-cyan-glow: var(--accent-rose-dim);
+    --accent-cyan-dim: rgba(251, 113, 133, 0.05);
+}
+
+.interim-text {
+    padding: var(--space-xs) var(--space-md);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    font-style: italic;
+    animation: fadeIn 0.3s ease;
+}

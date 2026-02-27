@@ -1,0 +1,50 @@
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.app-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md) var(--space-xl);
+    border-top: var(--glass-border);
+    color: var(--text-muted);
+    font-size: var(--text-xs);
+    gap: var(--space-md);
+}
+
+.app-footer a {
+    color: var(--accent-cyan);
+    font-weight: var(--weight-medium);
+}
+
+.status-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs) var(--space-lg);
+    background: var(--bg-secondary);
+    border-top: var(--glass-border);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.status-indicator .status-dot {
+    width: 5px;
+    height: 5px;
+}
+
+.isl-panel-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    flex: 1;
+}

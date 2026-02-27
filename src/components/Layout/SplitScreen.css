@@ -1,0 +1,117 @@
+.split-screen {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+    flex: 1;
+    min-height: 0;
+    animation: fadeIn 0.6s ease;
+}
+
+.split-panel {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    animation: fadeInUp 0.5s ease;
+    min-height: 400px;
+}
+
+.split-panel:first-child {
+    animation-delay: 0.1s;
+}
+
+.split-panel:last-child {
+    animation-delay: 0.2s;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: var(--glass-border);
+}
+
+.panel-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.panel-title-icon {
+    font-size: var(--text-lg);
+}
+
+.panel-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-emerald);
+    animation: breathe 2s ease-in-out infinite;
+}
+
+.status-dot.inactive {
+    background: var(--text-muted);
+    animation: none;
+}
+
+.status-dot.error {
+    background: var(--accent-rose);
+    animation: none;
+}
+
+.panel-content {
+    flex: 1;
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.panel-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.divider-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: var(--glass-border);
+    border-radius: 50%;
+    font-size: var(--text-lg);
+    position: absolute;
+    z-index: 1;
+    animation: float 3s ease-in-out infinite;
+}
+
+@media (max-width: 900px) {
+    .split-screen {
+        grid-template-columns: 1fr;
+        padding: var(--space-md);
+    }
+
+    .split-panel {
+        min-height: 300px;
+    }
+}

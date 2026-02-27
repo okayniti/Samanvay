@@ -1,0 +1,190 @@
+.webcam-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-tertiary);
+}
+
+.webcam-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+
+.webcam-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transform: scaleX(-1);
+}
+
+.webcam-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    color: var(--text-muted);
+    z-index: 1;
+}
+
+.webcam-placeholder-icon {
+    font-size: 3rem;
+    opacity: 0.5;
+    animation: float 3s ease-in-out infinite;
+}
+
+.webcam-placeholder-text {
+    font-size: var(--text-sm);
+    text-align: center;
+    max-width: 200px;
+}
+
+.webcam-start-btn {
+    padding: var(--space-sm) var(--space-xl);
+    background: var(--gradient-main);
+    color: var(--text-inverse);
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-sm);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-normal);
+    box-shadow: 0 4px 20px var(--accent-cyan-glow);
+}
+
+.webcam-start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px var(--accent-cyan-glow);
+}
+
+.webcam-error {
+    color: var(--accent-rose);
+    font-size: var(--text-sm);
+    text-align: center;
+    padding: var(--space-md);
+}
+
+.webcam-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    z-index: 1;
+}
+
+.webcam-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--bg-glass-border);
+    border-top-color: var(--accent-cyan);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.webcam-loading-text {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.emotion-badge {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--bg-glass);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    color: var(--text-primary);
+    border: var(--glass-border);
+    animation: scaleIn 0.3s ease;
+    z-index: 2;
+}
+
+.detected-sign-badge {
+    position: absolute;
+    bottom: var(--space-md);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--accent-cyan-dim);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--accent-cyan);
+    border-radius: var(--radius-full);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+    color: var(--accent-cyan);
+    animation: scaleIn 0.3s ease;
+    z-index: 2;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.hand-status-bar {
+    position: absolute;
+    top: var(--space-md);
+    left: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--bg-glass);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    color: var(--text-muted);
+    border: var(--glass-border);
+    z-index: 2;
+    transition: all var(--transition-normal);
+}
+
+.hand-status-bar.detected {
+    color: var(--accent-emerald);
+    border-color: rgba(52, 211, 153, 0.3);
+    background: rgba(52, 211, 153, 0.1);
+}
+
+.hand-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.hand-status-dot.active {
+    background: var(--accent-emerald);
+    animation: breathe 1.5s ease-in-out infinite;
+}
+
+.hand-status-text {
+    white-space: nowrap;
+}
+
+.webcam-loading-hint {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    opacity: 0.7;
+    animation: fadeIn 1s ease;
+}
