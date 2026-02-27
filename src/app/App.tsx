@@ -6,6 +6,7 @@ import { OutputPanel } from '../components/Chat/OutputPanel';
 import { TextInput } from '../components/Chat/TextInput';
 import { SignAvatar } from '../components/Avatar/SignAvatar';
 import { TeachMePanel } from '../components/TeachMe/TeachMePanel';
+import { SentenceDisplay } from '../components/Chat/SentenceDisplay';
 import './App.css';
 
 export default function App() {
@@ -50,7 +51,12 @@ export default function App() {
                         icon: '💬',
                         status: 'Ready',
                         statusType: 'active',
-                        children: <OutputPanel />,
+                        children: (
+                            <div className="isl-panel-content">
+                                <SentenceDisplay />
+                                <OutputPanel />
+                            </div>
+                        ),
                     }}
                 />
                 <footer className="app-footer">

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { AppMode, EmotionLabel, DetectedSign, ConversationMessage, WebcamState, TeachMeState } from '../types';
+import type { RecognitionMode } from '../engine/GestureEngine';
 
 interface AppState {
     mode: AppMode;
@@ -31,6 +32,9 @@ interface AppState {
 
     fps: number;
     setFps: (fps: number) => void;
+
+    recognitionMode: RecognitionMode;
+    setRecognitionMode: (mode: RecognitionMode) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -80,4 +84,7 @@ export const useAppStore = create<AppState>((set) => ({
 
     fps: 0,
     setFps: (fps) => set({ fps }),
+
+    recognitionMode: 'auto',
+    setRecognitionMode: (mode) => set({ recognitionMode: mode }),
 }));

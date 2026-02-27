@@ -6,237 +6,284 @@ function countExtended(fingers: boolean[]): number {
 }
 
 export const signDictionary: EngineSignEntry[] = [
+    // === GREETINGS ===
     {
-        id: 'hello',
-        label: 'Hello',
-        description: 'Open palm, all fingers extended',
+        id: 'hello', label: 'Hello', description: 'Open palm, all fingers spread',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            const allExtended = countExtended(fingers) === 5;
-            if (allExtended) return 0.75;
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (countExtended(f) === 5) return 0.7;
             return 0;
         },
     },
     {
-        id: 'thank_you',
-        label: 'Thank You',
-        description: 'Flat hand near chin area',
+        id: 'goodbye', label: 'Goodbye', description: 'Open palm waving',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            const allExtended = countExtended(fingers) >= 4;
-            const middleTip = hands[0][12];
-            if (!middleTip) return 0;
-            if (allExtended && middleTip.y < 0.35) return 0.6;
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (countExtended(f) === 5 && hands[0][0].y < 0.4) return 0.55;
             return 0;
         },
     },
     {
-        id: 'yes',
-        label: 'Yes',
-        description: 'Closed fist',
+        id: 'good_morning', label: 'Good Morning', description: 'Flat hand rising from chin',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            const extended = countExtended(fingers);
-            if (extended === 0) return 0.7;
-            if (extended === 1 && fingers[0]) return 0.45;
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (countExtended(f) >= 4 && hands[0][12].y < 0.3) return 0.45;
+            return 0;
+        },
+    },
+
+    // === RESPONSES ===
+    {
+        id: 'yes', label: 'Yes', description: 'Closed fist nodding',
+        match: (hands) => {
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (countExtended(f) === 0) return 0.6;
             return 0;
         },
     },
     {
-        id: 'no',
-        label: 'No',
-        description: 'Index and middle finger pinching together',
+        id: 'no', label: 'No', description: 'Index and middle pinching',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            if (fingers[1] && fingers[2] && !fingers[3] && !fingers[4] && !fingers[0]) return 0.65;
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (f[1] && f[2] && !f[3] && !f[4] && !f[0]) return 0.6;
             return 0;
         },
     },
     {
-        id: 'please',
-        label: 'Please',
-        description: 'Open palm on lower area',
+        id: 'thank_you', label: 'Thank You', description: 'Flat hand from chin forward',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            const allExtended = countExtended(fingers) === 5;
-            const wrist = hands[0][0];
-            if (!wrist) return 0;
-            if (allExtended && wrist.y > 0.55) return 0.55;
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (countExtended(f) >= 4 && hands[0][12].y < 0.35) return 0.55;
             return 0;
         },
     },
     {
-        id: 'good',
-        label: 'Good / Thumbs Up',
-        description: 'Only thumb extended upward',
+        id: 'sorry', label: 'Sorry', description: 'Fist circling on chest',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            const thumb = hands[0][4];
-            const wrist = hands[0][0];
-            if (!thumb || !wrist) return 0;
-            if (fingers[0] && !fingers[1] && !fingers[2] && !fingers[3] && !fingers[4]) {
-                if (thumb.y < wrist.y) return 0.8;
-                return 0.5;
-            }
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (countExtended(f) <= 1 && hands[0][0].y > 0.5) return 0.45;
             return 0;
         },
     },
     {
-        id: 'bad',
-        label: 'Bad / Thumbs Down',
-        description: 'Only thumb extended downward',
+        id: 'please', label: 'Please', description: 'Open palm on chest',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            const thumb = hands[0][4];
-            const wrist = hands[0][0];
-            if (!thumb || !wrist) return 0;
-            if (fingers[0] && !fingers[1] && !fingers[2] && !fingers[3] && !fingers[4]) {
-                if (thumb.y > wrist.y) return 0.75;
-            }
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (countExtended(f) === 5 && hands[0][0].y > 0.55) return 0.5;
             return 0;
         },
     },
     {
-        id: 'help',
-        label: 'Help',
-        description: 'Both hands visible — one fist, one open',
+        id: 'ok', label: 'OK', description: 'Thumb-index pinch, others extended',
+        match: (hands) => {
+            if (!hands[0]) return 0;
+            const d = distance(hands[0][4], hands[0][8]);
+            const f = getExtendedFingers(hands[0]);
+            if (d < 0.05 && f[2] && f[3] && f[4]) return 0.65;
+            return 0;
+        },
+    },
+
+    // === COMMON GESTURES ===
+    {
+        id: 'good', label: 'Good', description: 'Thumbs up',
+        match: (hands) => {
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (f[0] && !f[1] && !f[2] && !f[3] && !f[4] && hands[0][4].y < hands[0][0].y) return 0.75;
+            return 0;
+        },
+    },
+    {
+        id: 'bad', label: 'Bad', description: 'Thumbs down',
+        match: (hands) => {
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (f[0] && !f[1] && !f[2] && !f[3] && !f[4] && hands[0][4].y > hands[0][0].y) return 0.7;
+            return 0;
+        },
+    },
+    {
+        id: 'stop', label: 'Stop', description: 'Open palm held up firm',
+        match: (hands) => {
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            const spread = Math.abs(hands[0][12].y - hands[0][0].y);
+            if (countExtended(f) === 5 && spread > 0.15 && hands[0][0].y < 0.5) return 0.55;
+            return 0;
+        },
+    },
+    {
+        id: 'help', label: 'Help', description: 'Fist on open palm',
         match: (hands) => {
             if (hands.length < 2) return 0;
-            const fingers1 = getExtendedFingers(hands[0]);
-            const fingers2 = getExtendedFingers(hands[1]);
-            const ext1 = countExtended(fingers1);
-            const ext2 = countExtended(fingers2);
-            if ((ext1 <= 1 && ext2 >= 4) || (ext2 <= 1 && ext1 >= 4)) return 0.65;
+            const e1 = countExtended(getExtendedFingers(hands[0]));
+            const e2 = countExtended(getExtendedFingers(hands[1]));
+            if ((e1 <= 1 && e2 >= 4) || (e2 <= 1 && e1 >= 4)) return 0.6;
             return 0;
         },
     },
     {
-        id: 'stop',
-        label: 'Stop',
-        description: 'Open palm held up high',
+        id: 'love', label: 'I Love You', description: 'ILY sign — thumb, index, pinky',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            const allExtended = countExtended(fingers) === 5;
-            const wrist = hands[0][0];
-            const middleTip = hands[0][12];
-            if (!wrist || !middleTip) return 0;
-            const verticalSpread = Math.abs(middleTip.y - wrist.y);
-            if (allExtended && verticalSpread > 0.15 && wrist.y < 0.5) return 0.6;
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (f[0] && f[1] && !f[2] && !f[3] && f[4]) return 0.75;
             return 0;
         },
     },
     {
-        id: 'love',
-        label: 'I Love You',
-        description: 'Thumb, index, and pinky extended (ILY)',
+        id: 'peace', label: 'Peace', description: 'V sign — index and middle spread',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            if (fingers[0] && fingers[1] && !fingers[2] && !fingers[3] && fingers[4]) return 0.8;
-            return 0;
-        },
-    },
-    {
-        id: 'peace',
-        label: 'Peace / Victory',
-        description: 'Index and middle finger in V shape',
-        match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            if (fingers[1] && fingers[2] && !fingers[3] && !fingers[4]) {
-                const indexTip = hands[0][8];
-                const middleTip = hands[0][12];
-                if (indexTip && middleTip) {
-                    const spread = distance(indexTip, middleTip);
-                    if (spread > 0.03) return 0.7;
-                    return 0.5;
-                }
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (f[1] && f[2] && !f[3] && !f[4]) {
+                const spread = distance(hands[0][8], hands[0][12]);
+                if (spread > 0.03) return 0.65;
             }
             return 0;
         },
     },
     {
-        id: 'one',
-        label: 'One',
-        description: 'Only index finger extended',
+        id: 'call', label: 'Call Me', description: 'Thumb + pinky extended',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            if (!fingers[0] && fingers[1] && !fingers[2] && !fingers[3] && !fingers[4]) return 0.7;
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (f[0] && !f[1] && !f[2] && !f[3] && f[4]) return 0.7;
+            return 0;
+        },
+    },
+
+    // === PRONOUNS ===
+    {
+        id: 'me', label: 'Me / I', description: 'Point to self',
+        match: (hands) => {
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (f[1] && !f[2] && !f[3] && !f[4] && hands[0][8].y > 0.5) return 0.5;
             return 0;
         },
     },
     {
-        id: 'two',
-        label: 'Two',
-        description: 'Index and middle fingers close together',
+        id: 'you', label: 'You', description: 'Point forward',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            if (!fingers[0] && fingers[1] && fingers[2] && !fingers[3] && !fingers[4]) {
-                const indexTip = hands[0][8];
-                const middleTip = hands[0][12];
-                if (indexTip && middleTip) {
-                    const spread = distance(indexTip, middleTip);
-                    if (spread <= 0.04) return 0.65;
-                }
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (f[1] && !f[2] && !f[3] && !f[4] && hands[0][8].y < 0.4) return 0.5;
+            return 0;
+        },
+    },
+
+    // === QUESTIONS ===
+    {
+        id: 'what', label: 'What', description: 'Open hands palms up, shrug',
+        match: (hands) => {
+            if (hands.length < 2) return 0;
+            const f1 = countExtended(getExtendedFingers(hands[0]));
+            const f2 = countExtended(getExtendedFingers(hands[1]));
+            if (f1 >= 4 && f2 >= 4 && hands[0][0].y > 0.5 && hands[1][0].y > 0.5) return 0.5;
+            return 0;
+        },
+    },
+
+    // === ACTIONS ===
+    {
+        id: 'eat', label: 'Eat', description: 'Fingers bunched to mouth',
+        match: (hands) => {
+            if (!hands[0]) return 0;
+            const d = distance(hands[0][4], hands[0][8]);
+            if (d < 0.04 && hands[0][8].y < 0.3) return 0.5;
+            return 0;
+        },
+    },
+    {
+        id: 'drink', label: 'Drink', description: 'C-hand tilting to mouth',
+        match: (hands) => {
+            if (!hands[0]) return 0;
+            const curve = distance(hands[0][4], hands[0][8]);
+            if (curve > 0.05 && curve < 0.12 && hands[0][4].y < 0.35) return 0.45;
+            return 0;
+        },
+    },
+
+    // === NUMBERS (as words) ===
+    {
+        id: 'one', label: 'One', description: 'Index finger only',
+        match: (hands) => {
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (!f[0] && f[1] && !f[2] && !f[3] && !f[4]) return 0.65;
+            return 0;
+        },
+    },
+    {
+        id: 'two', label: 'Two', description: 'Index + middle close',
+        match: (hands) => {
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (!f[0] && f[1] && f[2] && !f[3] && !f[4]) {
+                if (distance(hands[0][8], hands[0][12]) <= 0.035) return 0.6;
             }
             return 0;
         },
     },
     {
-        id: 'three',
-        label: 'Three',
-        description: 'Index, middle, and ring fingers extended',
+        id: 'three', label: 'Three', description: 'Index + middle + ring',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            if (!fingers[0] && fingers[1] && fingers[2] && fingers[3] && !fingers[4]) return 0.65;
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (!f[0] && f[1] && f[2] && f[3] && !f[4]) return 0.6;
             return 0;
         },
     },
     {
-        id: 'four',
-        label: 'Four',
-        description: 'All fingers except thumb extended',
+        id: 'four', label: 'Four', description: 'All except thumb',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            if (!fingers[0] && fingers[1] && fingers[2] && fingers[3] && fingers[4]) return 0.65;
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (!f[0] && f[1] && f[2] && f[3] && f[4]) return 0.6;
             return 0;
         },
     },
     {
-        id: 'call',
-        label: 'Call Me',
-        description: 'Thumb and pinky extended (phone gesture)',
+        id: 'five', label: 'Five', description: 'All fingers + thumb',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const fingers = getExtendedFingers(hands[0]);
-            if (fingers[0] && !fingers[1] && !fingers[2] && !fingers[3] && fingers[4]) return 0.75;
+            if (!hands[0]) return 0;
+            const f = getExtendedFingers(hands[0]);
+            if (f[0] && f[1] && f[2] && f[3] && f[4]) return 0.55;
             return 0;
         },
     },
+
+    // === EMOTIONS ===
     {
-        id: 'ok',
-        label: 'OK',
-        description: 'Thumb and index finger forming circle, others extended',
+        id: 'happy', label: 'Happy', description: 'Both hands open moving up from chest',
         match: (hands) => {
-            if (hands.length === 0) return 0;
-            const thumbTip = hands[0][4];
-            const indexTip = hands[0][8];
-            const fingers = getExtendedFingers(hands[0]);
-            if (!thumbTip || !indexTip) return 0;
-            const pinchDist = distance(thumbTip, indexTip);
-            if (pinchDist < 0.05 && fingers[2] && fingers[3] && fingers[4]) return 0.7;
+            if (hands.length < 2) return 0;
+            const f1 = countExtended(getExtendedFingers(hands[0]));
+            const f2 = countExtended(getExtendedFingers(hands[1]));
+            if (f1 >= 4 && f2 >= 4 && hands[0][0].y < 0.45 && hands[1][0].y < 0.45) return 0.45;
+            return 0;
+        },
+    },
+
+    // === FAMILY / PEOPLE ===
+    {
+        id: 'friend', label: 'Friend', description: 'Interlocked index fingers',
+        match: (hands) => {
+            if (hands.length < 2) return 0;
+            const d = distance(hands[0][8], hands[1][8]);
+            const f1 = getExtendedFingers(hands[0]);
+            const f2 = getExtendedFingers(hands[1]);
+            if (d < 0.06 && f1[1] && f2[1]) return 0.5;
             return 0;
         },
     },
