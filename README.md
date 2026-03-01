@@ -7,7 +7,7 @@
 ![MediaPipe](https://img.shields.io/badge/MediaPipe-Tasks_Vision-4285F4?logo=google)
 ![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite)
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/e58b8781-ce8d-4018-9b9c-2127672e7847" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/32dad445-9377-4dfb-8396-246d597222be" />
 
 ---
 
