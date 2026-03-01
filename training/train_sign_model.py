@@ -88,6 +88,20 @@ def download_dataset():
 def extract_landmarks_from_dataset():
     """Extract hand landmarks from all images using MediaPipe."""
 
+    cache_X = Path("cache_X.npy")
+    cache_y = Path("cache_y.npy")
+    cache_labels = Path("cache_labels.json")
+
+    # Use cached landmarks if available (saves ~2 hours)
+    if cache_X.exists() and cache_y.exists() and cache_labels.exists():
+        print("\n📦 Loading cached landmarks...")
+        X = np.load(cache_X)
+        y = np.load(cache_y)
+        with open(cache_labels) as f:
+            label_names = json.load(f)
+        print(f"   Loaded {len(X)} samples, {len(label_names)} classes")
+        return X, y, label_names
+
     if not DATA_DIR.exists():
         print(f"\n📥 Dataset not found. Downloading via Kaggle API...")
         download_dataset()
@@ -111,13 +125,32 @@ def extract_landmarks_from_dataset():
         json.dump(label_names, f)
     print(f"💾 Saved labels to {LABELS_FILE}")
 
-    # Initialize MediaPipe Hands
-    mp_hands = mp.solutions.hands
-    hands = mp_hands.Hands(
-        static_image_mode=True,
-        max_num_hands=1,
-        min_detection_confidence=0.5,
+    # Initialize MediaPipe Hands (new Tasks API)
+    import urllib.request
+    from mediapipe.tasks.python import BaseOptions
+    from mediapipe.tasks.python.vision import (
+        HandLandmarker,
+        HandLandmarkerOptions,
+        RunningMode,
     )
+
+    model_path = Path("hand_landmarker.task")
+    if not model_path.exists():
+        print("📥 Downloading hand landmarker model...")
+        urllib.request.urlretrieve(
+            "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task",
+            str(model_path),
+        )
+
+    options = HandLandmarkerOptions(
+        base_options=BaseOptions(model_asset_path=str(model_path)),
+        running_mode=RunningMode.IMAGE,
+        num_hands=1,
+        min_hand_detection_confidence=0.5,
+        min_hand_presence_confidence=0.5,
+    )
+
+    landmarker = HandLandmarker.create_from_options(options)
 
     all_landmarks = []
     all_labels = []
@@ -136,23 +169,31 @@ def extract_landmarks_from_dataset():
                 continue
 
             img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            result = hands.process(img_rgb)
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img_rgb)
+            result = landmarker.detect(mp_image)
 
-            if result.multi_hand_landmarks and len(result.multi_hand_landmarks) > 0:
-                hand = result.multi_hand_landmarks[0]
-                landmarks = normalize_landmarks(hand.landmark)
+            if result.hand_landmarks and len(result.hand_landmarks) > 0:
+                hand = result.hand_landmarks[0]
+                landmarks = normalize_landmarks(hand)
                 all_landmarks.append(landmarks)
                 all_labels.append(label_map[cls_dir.name])
             else:
                 skipped += 1
 
-    hands.close()
+    landmarker.close()
 
     X = np.array(all_landmarks, dtype=np.float32)
     y = np.array(all_labels, dtype=np.int32)
 
     print(f"\n✅ Extracted {len(X)} landmark samples ({skipped} images skipped)")
     print(f"   Shape: X={X.shape}, y={y.shape}")
+
+    # Cache for next time
+    np.save(cache_X, X)
+    np.save(cache_y, y)
+    with open(cache_labels, 'w') as f:
+        json.dump(label_names, f)
+    print(f"💾 Cached landmarks for next run")
 
     return X, y, label_names
 
@@ -187,6 +228,25 @@ def train_model(X, y, num_classes):
     print(f"   Features: {X.shape[1]}")
     print(f"   Classes: {num_classes}")
     print(f"   Samples: {len(X)}")
+
+    # Filter out classes with too few samples (e.g., 'nothing' has no hands)
+    from collections import Counter
+    counts = Counter(y)
+    min_samples = 5
+    valid_classes = {cls for cls, cnt in counts.items() if cnt >= min_samples}
+    mask = np.array([label in valid_classes for label in y])
+
+    if len(valid_classes) < num_classes:
+        removed = num_classes - len(valid_classes)
+        print(f"   ⚠️ Removed {removed} class(es) with < {min_samples} samples")
+        X = X[mask]
+        y = y[mask]
+        # Re-map labels to contiguous indices
+        unique_labels = sorted(set(y))
+        remap = {old: new for new, old in enumerate(unique_labels)}
+        y = np.array([remap[label] for label in y])
+        num_classes = len(unique_labels)
+        print(f"   Remaining: {num_classes} classes, {len(X)} samples")
 
     # Split data
     X_train, X_val, y_train, y_val = train_test_split(

@@ -25,6 +25,7 @@ body {
     min-height: 100vh;
 }
 
+/* Animated gradient mesh background */
 body::before {
     content: '';
     position: fixed;
@@ -33,10 +34,45 @@ body::before {
     right: 0;
     bottom: 0;
     background:
-        radial-gradient(ellipse 80% 60% at 10% 20%, var(--accent-cyan-dim) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 90% 80%, var(--accent-violet-dim) 0%, transparent 60%);
+        radial-gradient(ellipse 80% 60% at 10% 20%, rgba(0, 229, 255, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 50% 50%, rgba(52, 211, 153, 0.04) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
+    animation: meshFloat 20s ease-in-out infinite alternate;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle 400px at 20% 80%, rgba(168, 85, 247, 0.06) 0%, transparent 100%),
+        radial-gradient(circle 300px at 80% 20%, rgba(0, 229, 255, 0.05) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: -1;
+    animation: meshFloat 25s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes meshFloat {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(10px, -15px) scale(1.02);
+    }
+
+    66% {
+        transform: translate(-5px, 10px) scale(0.98);
+    }
+
+    100% {
+        transform: translate(8px, -8px) scale(1.01);
+    }
 }
 
 #root {
@@ -64,6 +100,10 @@ button {
     color: inherit;
 }
 
+button:active {
+    transform: scale(0.97);
+}
+
 input,
 textarea {
     font-family: var(--font-sans);
@@ -74,8 +114,8 @@ textarea {
 }
 
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -83,12 +123,13 @@ textarea {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--bg-glass-border);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: var(--radius-full);
+    transition: background 0.3s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 ::selection {
@@ -103,10 +144,12 @@ textarea {
     border: var(--glass-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--glass-shadow);
+    transition: background var(--transition-normal), border-color var(--transition-normal);
 }
 
 .glass-panel:hover {
     background: var(--bg-glass-hover);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .sr-only {
@@ -119,4 +162,11 @@ textarea {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
+}
+
+/* Focus ring for accessibility */
+:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
 }

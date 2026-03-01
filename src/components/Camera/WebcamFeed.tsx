@@ -3,7 +3,7 @@ import { useWebcam } from '../../hooks/useWebcam';
 import { useMediaPipe } from '../../hooks/useMediaPipe';
 import { useTeachMe } from '../../hooks/useTeachMe';
 import { useAppStore } from '../../store/useAppStore';
-import { recognizeGesture } from '../../engine/GestureEngine';
+import { recognizeGesture, initModel } from '../../engine/GestureEngine';
 import { detectEmotion, getEmotionEmoji, modifyToneByEmotion } from '../../emotion/EmotionDetector';
 import { HandOverlay } from './HandOverlay';
 import './WebcamFeed.css';
@@ -20,6 +20,8 @@ export function WebcamFeed() {
     const [handsVisible, setHandsVisible] = useState(false);
     const [candidateSign, setCandidateSign] = useState('');
     const [candidateConfidence, setCandidateConfidence] = useState(0);
+    const [usingModel, setUsingModel] = useState(false);
+    const [candidateType, setCandidateType] = useState('');
 
     const addMessage = useAppStore((s) => s.addMessage);
     const setCurrentEmotion = useAppStore((s) => s.setCurrentEmotion);
@@ -53,6 +55,8 @@ export function WebcamFeed() {
 
                 setCandidateSign(gestureResult.bestCandidate);
                 setCandidateConfidence(gestureResult.bestCandidateConfidence);
+                setUsingModel(gestureResult.usingModel);
+                setCandidateType(gestureResult.type);
 
                 if (gestureResult.sign) {
                     addDetectedSign(gestureResult.sign);
@@ -108,6 +112,14 @@ export function WebcamFeed() {
         };
     }, [stop]);
 
+    // Initialize ML model on mount
+    useEffect(() => {
+        initModel().then((loaded) => {
+            setUsingModel(loaded);
+            console.log(loaded ? '🧠 ML model loaded' : '📋 Using heuristic fallback');
+        });
+    }, []);
+
     if (loadError) {
         return (
             <div className="webcam-container">
@@ -136,10 +148,11 @@ export function WebcamFeed() {
                     <span className="hand-status-text">
                         {handsVisible
                             ? candidateSign
-                                ? `Detecting: ${candidateSign} (${Math.round(candidateConfidence * 100)}%)`
+                                ? `${candidateType === 'model' ? '🧠' : '📋'} ${candidateSign} (${Math.round(candidateConfidence * 100)}%)`
                                 : 'Hands detected — analyzing...'
                             : 'Show your hands to the camera'}
                     </span>
+                    {usingModel && <span className="model-badge">AI</span>}
                 </div>
             )}
 

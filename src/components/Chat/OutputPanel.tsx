@@ -41,7 +41,7 @@ export function OutputPanel() {
         <div className="output-panel">
             <div className="message-list" ref={listRef} role="log" aria-label="Conversation messages">
                 {messages.map((msg) => (
-                    <div key={msg.id} className="message-item">
+                    <div key={msg.id} className={`message-item ${msg.source}`}>
                         <span className="message-source" aria-hidden="true">{sourceIcon(msg.source)}</span>
                         <div className="message-body">
                             <p className="message-text">{msg.text}</p>
