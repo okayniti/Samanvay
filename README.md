@@ -1,44 +1,50 @@
-# 🤝 Samanvay — A Two-Way Indian Sign Language Interpreter
+# 🤝 Samanvay — A Two-Way Sign Language Interpreter
 
 > *Bridging the gap between signed and spoken language through AI-powered real-time interpretation.*
 
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript)
+![TensorFlow.js](https://img.shields.io/badge/TensorFlow.js-4.22-FF6F00?logo=tensorflow)
 ![MediaPipe](https://img.shields.io/badge/MediaPipe-Tasks_Vision-4285F4?logo=google)
 ![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/32dad445-9377-4dfb-8396-246d597222be" />
+<img width="1920" height="1080" alt="Samanvay — Sign Language Interpreter" src="https://github.com/user-attachments/assets/32dad445-9377-4dfb-8396-246d597222be" />
 
 ---
 
 ## 🎯 Vision
 
-Samanvay (समन्वय — meaning *harmony, coordination*) was born from a personal journey of wanting to learn Indian Sign Language and realizing the vast communication gap between the hearing and deaf communities.
+**Samanvay** (समन्वय — meaning *harmony, coordination*) was born from a personal journey of wanting to learn Indian Sign Language and realizing the vast communication gap between the hearing and deaf communities.
 
-This is not a toy demo — it's a **modular, production-ready architecture** for a two-way ISL interpreter that runs entirely in the browser. MediaPipe powers real-time hand and face landmark detection, while a pluggable gesture engine maps hand configurations to ISL signs. The system is designed so that the heuristic matching can be replaced with trained CNN/LSTM models without touching the rest of the codebase.
+This is not a toy demo — it's a **modular, production-ready architecture** for a two-way sign language interpreter that runs **entirely in the browser**. A trained Dense neural network classifies hand landmarks extracted by MediaPipe into 29 sign classes in real-time. The system is designed so the model can be swapped with CNN/LSTM architectures without touching the rest of the codebase.
 
 ---
 
 ## ✨ Features
 
 ### Two-Way Communication
-| ISL → English | English → ISL |
+
+| 🖐️ Sign → Text | ✏️ Text → Sign |
 |---|---|
 | Real-time webcam hand tracking | Text & voice input |
-| Gesture recognition (15 ISL signs) | Animated sign avatar display |
-| Text-to-Speech output | Word-by-word sign sequence |
-| Emotion-aware tone modification | Fingerspelling fallback |
+| ML-powered gesture recognition (29 classes) | Animated sign avatar display |
+| Sentence building from detected signs | Word-by-word sign sequence |
+| Text-to-Speech output | Fingerspelling fallback |
+| Emotion-aware tone modification | — |
 
 ### Core Capabilities
-- **🖐️ Hand Landmark Detection** — MediaPipe HandLandmarker with GPU acceleration
-- **😊 Emotion Detection** — Facial expression analysis (Happy, Sad, Neutral, Angry, Surprised)
-- **🎓 Teach Me Mode** — Keypoint visualization, confidence scores, slow-motion replay
+
+- **🧠 ML Sign Classification** — Dense neural network trained on 29K+ hand landmark samples (ASL Alphabet dataset), exported to TensorFlow.js for browser inference
+- **🖐️ Hand Landmark Detection** — MediaPipe HandLandmarker with 21-point tracking and GPU acceleration
+- **😊 Emotion Detection** — Facial expression analysis (Happy, Sad, Neutral, Angry, Surprised) via face landmarks
+- **🎓 Teach Me Mode** — Interactive learning with keypoint visualization, confidence scores, and real-time feedback
 - **🔊 Speech Integration** — Text-to-Speech & Speech-to-Text via Web Speech API
 - **🌐 Multilingual Architecture** — Translation abstraction layer ready for Hindi and beyond
 
 ---
 
-## 🏗️ Technical Architecture
+## 🏗️ Architecture
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -55,46 +61,62 @@ This is not a toy demo — it's a **modular, production-ready architecture** for
 ├────────────────────────┴─────────────────────────────────────┤
 │                     Engine Layer                             │
 │  ┌─────────────┐  ┌──────────────┐  ┌─────────────────────┐ │
-│  │ GestureEngine│  │ EmotionDetect│  │ TranslationService  │ │
-│  │ + Dictionary │  │              │  │ + TextToSign        │ │
+│  │ ModelLoader  │  │ EmotionDetect│  │ TranslationService  │ │
+│  │ + Gesture   │  │              │  │ + TextToSign        │ │
+│  │ + Dictionary│  │              │  │                     │ │
 │  └──────┬──────┘  └──────┬───────┘  └─────────────────────┘ │
 │         │                │                                   │
-│  ┌──────┴──────┐  ┌──────┴───────┐                           │
-│  │ MediaPipe   │  │ MediaPipe    │                           │
-│  │ HandLandmark│  │ FaceLandmark │                           │
-│  └─────────────┘  └──────────────┘                           │
+│  ┌──────┴──────┐  ┌──────┴───────┐  ┌─────────────────────┐ │
+│  │ MediaPipe   │  │ MediaPipe    │  │  TensorFlow.js      │ │
+│  │ HandLandmark│  │ FaceLandmark │  │  Sign Classifier    │ │
+│  └─────────────┘  └──────────────┘  └─────────────────────┘ │
 ├──────────────────────────────────────────────────────────────┤
 │  State: Zustand    Speech: Web Speech API    Styles: CSS     │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### Module Breakdown
+### Project Structure
 
-| Module | Purpose |
-|---|---|
-| `engine/` | Gesture recognition — `GestureEngine`, `LandmarkProcessor`, `SignDictionary` |
-| `emotion/` | Facial emotion classification from face landmarks |
-| `translation/` | Abstraction layer for multi-language support |
-| `speech/` | Text-to-Speech and Speech-to-Text wrappers |
-| `store/` | Zustand-based global state management |
-| `hooks/` | `useWebcam`, `useMediaPipe`, `useTeachMe` |
-| `components/` | `Layout/`, `Camera/`, `Chat/`, `Avatar/`, `TeachMe/` |
+```
+Samanvay/
+├── src/
+│   ├── engine/          # GestureEngine, ModelLoader, LandmarkProcessor, SignDictionary
+│   ├── emotion/         # Facial emotion classification from face landmarks
+│   ├── translation/     # Abstraction layer for multi-language support
+│   ├── speech/          # Text-to-Speech and Speech-to-Text wrappers
+│   ├── store/           # Zustand-based global state management
+│   ├── hooks/           # useWebcam, useMediaPipe, useTeachMe
+│   ├── components/
+│   │   ├── Layout/      # Header, ModeSelector, SplitScreen
+│   │   ├── Camera/      # WebcamFeed with live hand tracking
+│   │   ├── Chat/        # OutputPanel, SentenceDisplay, TextInput
+│   │   ├── Avatar/      # SignAvatar for sign animation
+│   │   └── TeachMe/     # ConfidenceScore, interactive learning UI
+│   └── styles/          # CSS variables, animations, global styles
+├── training/
+│   ├── train_sign_model.py   # ML training pipeline (MediaPipe → Dense NN → TF.js)
+│   ├── collect_custom.py     # Custom sign data collection tool
+│   └── requirements.txt
+└── public/models/            # Trained TF.js model (auto-loaded by app)
+```
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- A modern browser with WebGL support (Chrome recommended)
-- Webcam (for ISL → English mode)
 
-### Install & Run
+- **Node.js 18+**
+- **Python 3.10+** (only for model training)
+- A modern browser with WebGL support (Chrome recommended)
+- Webcam (for Sign → Text mode)
+
+### Quick Start
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/samanvay.git
-cd samanvay
+git clone https://github.com/okayniti/Samanvay.git
+cd Samanvay
 
 # Install dependencies
 npm install
@@ -103,7 +125,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser.
+Open **http://localhost:5173** in Chrome. The pre-trained model loads automatically — start signing! 🤟
 
 ### Production Build
 
@@ -114,48 +136,89 @@ npm run preview
 
 ---
 
-## 💡 Why I Built This
+## 🧠 Model Training (Optional)
 
-Learning sign language opened my eyes to how isolated deaf and hard-of-hearing people can feel in everyday interactions. Existing tools are either:
-- **Research prototypes** locked behind academic paywalls
-- **Toy demos** that recognize 5 letters of ASL
-- **ASL-only** — ignoring Indian Sign Language entirely
+The app ships with a pre-trained model. If you want to retrain or customize:
 
-Samanvay is my attempt at building something **real**: a modular, extensible platform that respects ISL as a first-class language, with an architecture that grows from heuristic matching today to full neural models tomorrow.
+```bash
+cd training
+python -m venv venv
 
----
+# Activate virtual environment
+# Windows (Git Bash): source venv/Scripts/activate
+# macOS/Linux:        source venv/bin/activate
 
-## 🔮 Future Scope
+# Install dependencies
+pip install opencv-python mediapipe tensorflow numpy scikit-learn Pillow tqdm kagglehub tf-keras matplotlib
 
-| Feature | Status |
+# Run training pipeline
+python train_sign_model.py
+```
+
+### Pipeline Overview
+
+| Step | What Happens |
 |---|---|
-| CNN/LSTM model for gesture recognition | 🏗️ Architecture ready |
-| 3D avatar for sign animation | 🏗️ Plug-in point created |
-| Hindi language support | 🏗️ Translation layer abstracted |
-| Gesture-based learning games | 📋 Planned |
-| Analytics dashboard | 📋 Planned |
-| Mobile responsive PWA | 📋 Planned |
-| ISL video dataset collection tool | 📋 Planned |
+| **1. Data** | Downloads the ASL Alphabet dataset (87K images, 29 classes) via Kaggle API |
+| **2. Extraction** | MediaPipe extracts 21 hand landmarks (63 features) per image |
+| **3. Training** | Dense neural network trains on normalized landmark vectors |
+| **4. Export** | Model exports to TensorFlow.js format → `public/models/sign_classifier/` |
+
+**First run** takes ~15–30 min for extraction (cached for future runs). Training takes ~2 min.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Framework**: React 18 + TypeScript
-- **Build**: Vite 6
-- **State**: Zustand
-- **Vision AI**: MediaPipe Tasks Vision (Hand + Face Landmarker)
-- **Speech**: Web Speech API (SpeechSynthesis + SpeechRecognition)
-- **Styling**: Vanilla CSS with custom design tokens
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 18 + TypeScript |
+| **Build Tool** | Vite 6 |
+| **State Management** | Zustand |
+| **Hand/Face Detection** | MediaPipe Tasks Vision |
+| **Sign Classification** | TensorFlow.js (Dense NN) |
+| **Speech** | Web Speech API (SpeechSynthesis + SpeechRecognition) |
+| **Styling** | Vanilla CSS with custom design tokens |
+| **ML Training** | TensorFlow + scikit-learn + MediaPipe (Python) |
+
+---
+
+## 💡 Why I Built This
+
+Learning sign language opened my eyes to how isolated deaf and hard-of-hearing people can feel in everyday interactions. Existing tools are either:
+
+- **Research prototypes** locked behind academic paywalls
+- **Toy demos** that recognize a handful of ASL letters
+- **ASL-only** — ignoring Indian Sign Language entirely
+
+Samanvay is my attempt at building something **real**: a modular, extensible platform that respects sign language as a first-class language, with an architecture that grows from heuristic matching to full neural models.
+
+---
+
+## 🔮 Roadmap
+
+| Feature | Status |
+|---|---|
+| Dense NN sign classifier (29 classes) | ✅ Complete |
+| TF.js browser inference pipeline | ✅ Complete |
+| Two-way communication (Sign ↔ Text) | ✅ Complete |
+| Teach Me learning mode | ✅ Complete |
+| Emotion-aware speech output | ✅ Complete |
+| CNN/LSTM sequence model | 🏗️ Architecture ready |
+| 3D avatar for sign animation | 🏗️ Plug-in point created |
+| Hindi language support | 🏗️ Translation layer abstracted |
+| ISL-specific gesture dataset | 📋 Planned |
+| Mobile responsive PWA | 📋 Planned |
+| Analytics dashboard | 📋 Planned |
 
 ---
 
 ## 📄 License
 
-MIT
+MIT © [Niti](https://github.com/okayniti)
 
 ---
 
 <p align="center">
-  <em>Samanvay — Because communication is a human right, not a privilege.</em>
+  <strong>Samanvay</strong> — Because communication is a human right, not a privilege. 🤟
 </p>
