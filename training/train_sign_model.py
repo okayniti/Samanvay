@@ -39,7 +39,7 @@ NUM_FEATURES = NUM_LANDMARKS * 3  # x, y, z per landmark
 BATCH_SIZE = 64
 EPOCHS = 25
 VALIDATION_SPLIT = 0.15
-MAX_SAMPLES_PER_CLASS = 3000  # Cap to keep training fast. Set None for all.
+MAX_SAMPLES_PER_CLASS = 1000  # Cap to keep training fast. Set None for all.
 
 KAGGLE_DATASET = "grassknoted/asl-alphabet"
 
@@ -320,16 +320,58 @@ def train_model(X, y, num_classes):
 # ── Step 3: Export to TensorFlow.js ────────────────────────────────
 
 def export_to_tfjs(model):
-    """Export the trained model to TensorFlow.js format."""
-    import tensorflowjs as tfjs
+    """
+    Export the trained Keras model to TensorFlow.js Layers format.
+    
+    Produces model.json + weight binary shards compatible with
+    tf.loadLayersModel() in the browser — WITHOUT the tensorflowjs
+    Python package (which has broken Windows deps like jax, uvloop).
+    """
+    import struct
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    print(f"\n📦 Exporting model to TensorFlow.js (manual converter)...")
 
-    print(f"\n📦 Exporting model to TensorFlow.js...")
-    tfjs.converters.save_keras_model(model, str(OUTPUT_DIR))
+    # ── 1. Serialize weights to a single binary shard ──
+    weight_specs = []
+    weight_data = b''
+
+    for layer in model.layers:
+        for w in layer.weights:
+            w_np = w.numpy().astype(np.float32)
+            weight_specs.append({
+                'name': w.name,
+                'shape': list(w_np.shape),
+                'dtype': 'float32',
+            })
+            weight_data += w_np.tobytes()
+
+    shard_name = 'group1-shard1of1.bin'
+    shard_path = OUTPUT_DIR / shard_name
+    with open(shard_path, 'wb') as f:
+        f.write(weight_data)
+
+    # ── 2. Build model.json (topology + weight manifest) ──
+    model_config = json.loads(model.to_json())
+
+    model_json = {
+        'format': 'layers-model',
+        'generatedBy': 'samanvay-training-pipeline',
+        'convertedBy': 'custom-exporter',
+        'modelTopology': model_config,
+        'weightsManifest': [{
+            'paths': [shard_name],
+            'weights': weight_specs,
+        }],
+    }
+
+    model_json_path = OUTPUT_DIR / 'model.json'
+    with open(model_json_path, 'w') as f:
+        json.dump(model_json, f, indent=2)
+
     print(f"   Saved to: {OUTPUT_DIR.resolve()}")
 
-    # Copy labels to public dir too
+    # ── 3. Copy labels ──
     labels_dest = OUTPUT_DIR / "labels.json"
     with open(LABELS_FILE, 'r') as f:
         labels = json.load(f)
@@ -337,7 +379,7 @@ def export_to_tfjs(model):
         json.dump(labels, f)
     print(f"   Labels: {labels_dest}")
 
-    # Print model size
+    # ── 4. Summary ──
     total_size = sum(f.stat().st_size for f in OUTPUT_DIR.iterdir() if f.is_file())
     print(f"   Total size: {total_size / 1024:.1f} KB")
 
