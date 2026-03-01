@@ -229,16 +229,31 @@ def train_model(X, y, num_classes):
     print(f"   Classes: {num_classes}")
     print(f"   Samples: {len(X)}")
 
-    # Filter out classes with too few samples (e.g., 'nothing' has no hands)
+    # Filter out classes with too few samples for stratified splitting.
+    # stratify requires at least ceil(1/test_size) samples per class;
+    # we add a safety margin on top of that.
     from collections import Counter
+    import math
     counts = Counter(y)
-    min_samples = 5
+    min_for_split = math.ceil(1.0 / VALIDATION_SPLIT) + 1  # e.g. 8 for 0.15
+    min_samples = max(min_for_split, 5)
     valid_classes = {cls for cls, cnt in counts.items() if cnt >= min_samples}
+    invalid_classes = {cls: cnt for cls, cnt in counts.items() if cnt < min_samples}
     mask = np.array([label in valid_classes for label in y])
 
-    if len(valid_classes) < num_classes:
-        removed = num_classes - len(valid_classes)
-        print(f"   ⚠️ Removed {removed} class(es) with < {min_samples} samples")
+    if invalid_classes:
+        # Load label names to show readable class names
+        try:
+            with open(LABELS_FILE) as f:
+                all_label_names = json.load(f)
+        except Exception:
+            all_label_names = None
+
+        print(f"\n   ⚠️ Removing {len(invalid_classes)} class(es) with < {min_samples} samples:")
+        for cls_idx, cnt in sorted(invalid_classes.items()):
+            name = all_label_names[cls_idx] if all_label_names and cls_idx < len(all_label_names) else f"idx={cls_idx}"
+            print(f"      - '{name}' → {cnt} sample(s)")
+
         X = X[mask]
         y = y[mask]
         # Re-map labels to contiguous indices

@@ -1,23 +1,43 @@
-node_modules
-dist
-dist-ssr
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment / local config
 *.local
+.env
+.env.*
+
+# Editor / IDE
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
 # Python
 venv/
 __pycache__/
 *.pyc
+*.pyo
 
-# Training data (large, download separately)
+# Training — data & generated artifacts (large, download separately)
 training/data/
 training/venv/
 training/*.npy
+training/*.task
+training/cache_labels.json
+
+# Logs
+*.log
+npm-debug.log*
